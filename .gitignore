@@ -1,0 +1,55 @@
+## Build results
+bin/
+obj/
+out/
+
+## User-specific files
+*.user
+*.userosscache
+*.suo
+*.csproj.user
+*.userprefs
+
+## Log files
+*.log
+
+## OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+## Environment specific settings
+appsettings.Development.json
+appsettings.Production.json
+
+## Local DB files (if any, though you use PostgreSQL)
+*.db
+*.db3
+
+## NuGet Packages
+packages/
+
+## IDE specific
+.vs/
+.vscode/
+.idea/
+
+## Rider specific
+*.iws
+*.iml
+*.ipr
+*.sln.DotSettings
+*.sln.DotSettings.user
+
+## Temporary files
+[Tt]emp/
+temp/
+
+# Migrations are CODE and SHOULD be included
+# DO NOT ignore the Migrations folder
+# !Migrations/
