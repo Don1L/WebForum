@@ -26,6 +26,7 @@ desktop.ini
 ## Environment specific settings
 appsettings.Development.json
 appsettings.Production.json
+appsettings.json
 
 ## Local DB files (if any, though you use PostgreSQL)
 *.db
