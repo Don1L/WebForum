@@ -4,6 +4,8 @@ namespace WebForum.ViewModels;
 
 public class EditCommentViewModel
 {
+    public int Id { get; set; }
+    
     [Required]
     [StringLength(500, ErrorMessage = "The {0} must be at max {1} characters long."), MaxLength(500)]
     public string Text { get; set; } =  string.Empty;
