@@ -24,12 +24,12 @@ public class ApplicationDbContext : DbContext
         
         //Составной первыичный ключ для ThreadTopic
         modelBuilder.Entity<ThreadTopic>()
-            .HasKey(tt => new{tt.TheadId, tt.TopicId});
+            .HasKey(tt => new{tt.ThreadId, tt.TopicId});
         
         modelBuilder.Entity<ThreadTopic>()
             .HasOne(tt => tt.Thread)
             .WithMany(t => t.ThreadTopics)
-            .HasForeignKey(tt => tt.TheadId);
+            .HasForeignKey(tt => tt.ThreadId);
         
         modelBuilder.Entity<ThreadTopic>()
             .HasOne(tt => tt.Topic)

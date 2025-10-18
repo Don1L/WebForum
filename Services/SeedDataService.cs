@@ -40,7 +40,6 @@ public class SeedDataService
               Description = $"Post about {name.ToLower()}."
             });
         }
-        
         _context.Topics.AddRange(topics);
         await _context.SaveChangesAsync();
         
@@ -58,29 +57,28 @@ public class SeedDataService
                 IsDeleted = false,
             });
         }
-        
         _context.Threads.AddRange(threads);
         await _context.SaveChangesAsync();
         
         var threadTopics = new List<ThreadTopic>();
         foreach (var thread in threads)
         {
-            int topicCount = rnd.Next(1, 4);
+            int topicCount = rnd.Next();
             var randomTopic = topics.OrderBy(_ => rnd.Next()).Take(topicCount);
             foreach (var topic in randomTopic)
             {
                 threadTopics.Add(new ThreadTopic
                 {
                     TopicId = topic.Id,
-                    TheadId = thread.Id,
+                    ThreadId = thread.Id,
                 });
             }
+        }
+        _context.ThreadTopics.AddRange(threadTopics);
+        await _context.SaveChangesAsync();
             
-            _context.ThreadTopics.AddRange(threadTopics);
-            await _context.SaveChangesAsync();
-            
-            var post = new List<Post>();
-            for (int i = 1; i <= 1500; i++)
+        var post = new List<Post>();
+        for (int i = 1; i <= 1500; i++)
             {
                 post.Add(new Post
                 {
@@ -108,8 +106,6 @@ public class SeedDataService
             }
             _context.Comments.AddRange(comments);
             await _context.SaveChangesAsync();
-            
-        }
-
     }
+
 }
