@@ -79,33 +79,33 @@ public class SeedDataService
             
         var post = new List<Post>();
         for (int i = 1; i <= 1500; i++)
+        {
+            post.Add(new Post
             {
-                post.Add(new Post
-                {
-                    Text = $"This is post {i}. Test text text",
-                    AuthorId = rnd.Next(1, user.Count + 1),
-                    ThreadId = rnd.Next(1, threads.Count + 1),
-                    CreatedAt = DateTime.UtcNow.AddMinutes(-rnd.Next(1, 10000)),
-                    IsDeleted = false
-                });
-            }
-            _context.Posts.AddRange(post);
-            await _context.SaveChangesAsync();
+                Text = $"This is post {i}. Test text text",
+                AuthorId = rnd.Next(1, user.Count + 1),
+                ThreadId = rnd.Next(1, threads.Count + 1),
+                CreatedAt = DateTime.UtcNow.AddMinutes(-rnd.Next(1, 10000)),
+                IsDeleted = false
+            });
+        }
+        _context.Posts.AddRange(post);
+        await _context.SaveChangesAsync();
             
-            var comments = new List<Comment>();
-            for (int i = 1; i <= 800; i++)
+        var comments = new List<Comment>();
+        for (int i = 1; i <= 800; i++)
+        {
+            comments.Add(new Comment
             {
-                comments.Add(new Comment
-                {
-                    Text = $"This is comment #{i} on a post.",
-                    AuthorId = rnd.Next(1, user.Count + 1),
-                    PostId = rnd.Next(1, post.Count + 1),
-                    CreatedAt = DateTime.UtcNow.AddMinutes(-rnd.Next(1, 5000)),
-                    IsDeleted = false
-                });
-            }
-            _context.Comments.AddRange(comments);
-            await _context.SaveChangesAsync();
+                Text = $"This is comment #{i} on a post.",
+                AuthorId = rnd.Next(1, user.Count + 1),
+                PostId = rnd.Next(1, post.Count + 1),
+                CreatedAt = DateTime.UtcNow.AddMinutes(-rnd.Next(1, 5000)),
+                IsDeleted = false
+            });
+        }
+        _context.Comments.AddRange(comments);
+        await _context.SaveChangesAsync();
     }
 
 }
