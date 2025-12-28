@@ -62,10 +62,95 @@ public class User {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    // Buisness logic
+
     @PrePersist
     protected void onCreate() {
         if (createdAt == null)
             createdAt = LocalDateTime.now();
+    }
+
+    /**
+     * Soft delet function
+     */
+    public void delete() {
+        if (isDeleted == false)
+            this.isDeleted = true;
+    }
+
+    /**
+     * Ban function for regualr users or moderators
+     * 
+     * @throws IllegalStateException
+     */
+    public void ban() {
+        if (role != Role.ADMIN)
+            this.isActive = false;
+        else
+            throw new IllegalStateException("Вы не можете забанить админа");
+    }
+
+    /**
+     * Activation function for NOT deleted users
+     * 
+     * @throws IllegalStateException
+     */
+    public void activation() {
+        if (isDeleted != true)
+            this.isActive = true;
+        else
+            throw new IllegalStateException("Вы не можете активировать удалённого пользователя");
+    }
+
+    /**
+     * Checking if he can moderate (for admin and moderator roles)
+     * 
+     * @return
+     */
+    public boolean canModerate() {
+        return this.role == Role.MODERATOR || this.role == Role.ADMIN;
+    }
+
+    /**
+     * Checking administrator rights
+     * 
+     * @return
+     */
+    public boolean isAdmin() {
+        return this.role == Role.ADMIN;
+    }
+
+    /**
+     * Checking user rights
+     * 
+     * @return
+     */
+    public boolean isUser() {
+        return this.role == Role.USER;
+    }
+
+    /**
+     * Checking guest rights
+     * 
+     * @return
+     */
+    public boolean isGuest() {
+        return this.role == Role.GUEST;
+    }
+
+    // TODO: Creadte isAuthorOf(Thread thread) method for check thread author. Need
+    // thread entity for complite.
+
+    /**
+     * Activation function for guest role (guest != user befor activation)
+     * 
+     * @throws IllegalStateException
+     */
+    public void guestActivation() {
+        if (role == Role.GUEST && isDeleted != true)
+            this.role = Role.USER;
+        else
+            throw new IllegalStateException("Вы не можете активировать удалённого гостя");
     }
 
 }
