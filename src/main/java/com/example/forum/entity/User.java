@@ -8,45 +8,36 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
-@Setter
 @Getter
 @Table(name = "users")
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
-    @jakarta.persistence.Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "username", nullable = false, length = 30)
     private String username;
 
-    @Column(name = "photo", nullable = true)
+    @Column(name = "photo")
     private String photo;
 
-    @Email(message = "Некоректный формат email")
     @Column(unique = true, nullable = false)
-    @NotBlank(message = "Поле не может быть пустым")
     private String email;
 
     @Column(name = "password_hash", nullable = false, length = 60)
     private String passwordHash;
 
     @Column(name = "is_deleted")
-    @Builder.Default
     private boolean isDeleted = false;
 
     @Column(name = "role", nullable = false)
@@ -56,13 +47,54 @@ public class User {
     // TODO: Create activation method and accept role email
 
     @Column(name = "is_active")
-    @Builder.Default
     private boolean isActive = true;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    public User(String username, String email, String passwordHash, Role role) {
+        if (username == null || username.isBlank())
+            throw new IllegalArgumentException("Empty username");
+        if (username.length() > 30)
+            throw new IllegalArgumentException("Too long username");
+        if (email == null || email.isBlank() || !email.contains("@"))
+            throw new IllegalArgumentException("Invalid email");
+        if (passwordHash == null || passwordHash.length() != 60)
+            throw new IllegalArgumentException("Inavalid password hash");
+        if (role == null)
+            throw new IllegalArgumentException("No role for user");
+
+        this.username = username;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.role = role;
+        this.createdAt = LocalDateTime.now();
+        this.isDeleted = false;
+        this.isActive = true;
+
+    }
+
     // Buisness logic
+
+    /**
+     * Update profile method for new username and photo.
+     * 
+     * @param newUsername
+     * @param newPhoto
+     */
+    public void updateProfile(String newUsername, String newPhoto) {
+        if (isDeleted) {
+            throw new IllegalStateException("You cant update deleted user");
+        }
+        if (newUsername != null) {
+            if (newUsername.isBlank() || newUsername.length() > 30) {
+                throw new IllegalArgumentException("Invalid username");
+            }
+            this.username = newUsername;
+        }
+        this.photo = newPhoto;
+
+    }
 
     @PrePersist
     protected void onCreate() {
@@ -71,86 +103,60 @@ public class User {
     }
 
     /**
-     * Soft delet function
+     * Soft delet method
      */
-    public void delete() {
-        if (isDeleted == false)
-            this.isDeleted = true;
+    public void softDelete() {
+        if (isDeleted) {
+            return;
+        }
+        this.isDeleted = true;
+        this.isActive = false;
     }
 
     /**
-     * Ban function for regualr users or moderators
+     * Activation method for NOT deleted users
      * 
-     * @throws IllegalStateException
+     * @throws IllegalStateException if user deleted
      */
-    public void ban() {
-        if (role != Role.ADMIN)
-            this.isActive = false;
-        else
-            throw new IllegalStateException("Вы не можете забанить админа");
+    public void activate() {
+        if (isDeleted)
+            throw new IllegalStateException("Cannot activate deleted user");
+        if (isActive)
+            return; // already activate
+        this.isActive = true;
     }
 
     /**
-     * Activation function for NOT deleted users
+     * Deactivation user method
      * 
-     * @throws IllegalStateException
+     * @throws IllegalStateException if user is deleted
      */
-    public void activation() {
-        if (isDeleted != true)
-            this.isActive = true;
-        else
-            throw new IllegalStateException("Вы не можете активировать удалённого пользователя");
+    public void deactivate() {
+        if (isDeleted) {
+            throw new IllegalStateException("You cant deactivate deleted user");
+        }
+        this.isActive = false;
     }
 
     /**
      * Checking if he can moderate (for admin and moderator roles)
      * 
-     * @return
+     * @return true if user moderator or admin
      */
     public boolean canModerate() {
-        return this.role == Role.MODERATOR || this.role == Role.ADMIN;
+        return !isDeleted && isActive && (this.role == Role.MODERATOR || this.role == Role.ADMIN);
     }
 
     /**
      * Checking administrator rights
      * 
-     * @return
+     * @return true if user is admin
      */
     public boolean isAdmin() {
         return this.role == Role.ADMIN;
     }
 
-    /**
-     * Checking user rights
-     * 
-     * @return
-     */
-    public boolean isUser() {
-        return this.role == Role.USER;
-    }
-
-    /**
-     * Checking guest rights
-     * 
-     * @return
-     */
-    public boolean isGuest() {
-        return this.role == Role.GUEST;
-    }
-
     // TODO: Creadte isAuthorOf(Thread thread) method for check thread author. Need
     // thread entity for complite.
-
-    /**
-     * Activation function for guest role (guest != user befor activation)
-     * 
-     * @throws IllegalStateException
-     */
-    public void guestActivation() {
-        if (role == Role.GUEST && isDeleted != true)
-            this.role = Role.USER;
-        else
-            throw new IllegalStateException("Вы не можете активировать удалённого гостя");
-    }
 
 }
